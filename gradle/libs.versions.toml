@@ -1,0 +1,105 @@
+[versions]
+#For plugins
+agp = "9.3.0-rc01"
+kotlin = "2.4.0"
+android-junit5 = "2.0.1"
+
+#For dependencies
+coreKtx = "1.19.0"
+junit-bom = "6.1.0"
+# For instrumented tests if running on emulators/devices with API <35
+#junit-bom = "5.13.4"
+junitVersion = "1.3.0"
+kotlinxVersion = "1.11.0"
+composeBom = "2026.06.00"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+navigationCompose = "2.9.8"
+uiTextGoogleFonts = "1.11.3"
+appcompat = "1.7.1"
+material = "1.14.0"
+mockk = "1.14.11"
+timber = "5.0.1"
+koinBom = "4.2.2"
+turbine = "1.2.1"
+androidxTest = "1.7.0"
+robolectric = "4.16.1"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+
+# JUnit 5
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit-bom"}
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+junit-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+junit-vintage-engine = { group = "org.junit.vintage", name = "junit-vintage-engine" }
+
+# AndroidX JUnit
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+
+# JUnit 5 runner
+android-junit5-core = { group = "de.mannodermaus.junit5", name = "android-test-core", version.ref = "android-junit5" }
+android-junit5-runner = { group = "de.mannodermaus.junit5", name = "android-test-runner", version.ref = "android-junit5" }
+
+# KotlinX Coroutines test
+kotlinxCoroutinesTest = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxVersion" }
+
+# AndroidX (mostly Compose)
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+
+#AppCompat
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+#Material
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# MockK
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+
+# Timber
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# Koin (DI)
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koinBom" }
+koin-core = { group = "io.insert-koin", name = "koin-core" } # for pure kotlin modules
+koin-android = { group = "io.insert-koin", name = "koin-android" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-test-junit5 = { group = "io.insert-koin", name = "koin-test-junit5" }
+
+# Coroutines runtime (you only had the -test artifact) — reuse kotlinxVersion
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxVersion" }
+
+# Navigation
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
+# Compose Material icons (BOM-managed)
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+# Tests
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTest" }
+androidx-test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "androidxTest" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+
+[plugins]
+#Android Gradle plugins
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
+#Compose plugin
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+#JUnit 5 test runner
+android-instrumented-runner = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
+

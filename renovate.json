@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchManagers": ["gradle"],
+      "groupName": "Gradle / AndroidX",
+      "groupSlug": "gradle"
+    },
+    {
+      "description": "Keep KSP aligned with Kotlin — review together",
+      "matchPackageNames": ["org.jetbrains.kotlin.android", "com.google.devtools.ksp", "org.jetbrains.kotlin.plugin.compose"],
+      "groupName": "Kotlin + KSP"
+    }
+  ]
+}
