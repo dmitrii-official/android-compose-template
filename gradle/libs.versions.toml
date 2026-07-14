@@ -1,12 +1,12 @@
 [versions]
 #For plugins
-agp = "9.3.0-rc02"
-kotlin = "2.4.0"
+agp = "9.3.0"
+kotlin = "2.4.10"
 android-junit5 = "2.0.1"
 
 #For dependencies
 coreKtx = "1.19.0"
-junit-bom = "6.1.1"
+junit-bom = "6.1.2"
 # For instrumented tests if running on emulators/devices with API <35
 #junit-bom = "5.13.4"
 junitVersion = "1.3.0"
