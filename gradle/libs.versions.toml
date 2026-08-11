@@ -92,6 +92,12 @@ androidx-test-runner = { group = "androidx.test", name = "runner", version.ref =
 androidx-test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "androidxTest" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
+# Gradle plugin artifacts (build-logic/convention classpath only)
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+compose-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
+android-junit5-gradlePlugin = { group = "de.mannodermaus.gradle.plugins", name = "android-junit5", version.ref = "android-junit5" }
+
 [plugins]
 #Android Gradle plugins
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -102,4 +108,8 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 
 #JUnit 5 test runner
 android-instrumented-runner = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
+
+# Plugins defined by this project's build-logic (no version — resolved via includeBuild)
+convention-android-application = { id = "convention.android.application" }
+convention-android-library = { id = "convention.android.library" }
 
