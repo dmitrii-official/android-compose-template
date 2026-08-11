@@ -32,17 +32,32 @@ dirs (`main`, `test`, `androidTest`) to match the new package path.
 ./gradlew lint                                        # Android lint
 ```
 
-There is no `build-logic`/convention-plugins module yet — all Gradle config lives directly in the
-root `build.gradle.kts` and `app/build.gradle.kts`, driven by `gradle/libs.versions.toml`.
+Gradle config lives in a `build-logic` included build ([build-logic/convention](build-logic/convention)),
+not inline in module build scripts. `app/build.gradle.kts` just applies
+`convention.android.application` and sets its own identity (namespace/applicationId/versionCode/versionName).
 
 ## Architecture notes
 
-- **Single module (`:app`)**, namespace/applicationId `org.dmn.template`. Non-standard Kotlin
-  source layout: each source set points at `src/<name>/kotlin` instead of the default `src/<name>/java`
-  (set via `sourceSets { all { kotlin.directories... } }` in [app/build.gradle.kts](app/build.gradle.kts)).
+- **Convention plugins** (`build-logic/convention/src/main/kotlin`): `AndroidApplicationConventionPlugin`
+  and `AndroidLibraryConventionPlugin` own everything else — compileSdk/minSdk, the custom
+  `src/<name>/kotlin` source layout, JVM toolchain, JUnit 5 test runner wiring, and (application only)
+  Compose setup + the full runtime dependency list. Shared logic lives in plain `.kt` files with
+  **no package declaration** (`KotlinAndroid.kt`, `JUnit5Testing.kt`, `ProjectExtensions.kt`) —
+  deliberate, so `new-project.sh`'s literal `org.dmn.template` replacement can never rewrite a
+  `package` line without moving the file, which would silently desync package from directory. The
+  plugin IDs (`convention.android.application` / `.library`, registered in
+  [gradle/libs.versions.toml](gradle/libs.versions.toml)'s `[plugins]` table with no version) are
+  also intentionally project-agnostic so a rename never needs to touch them. Adding a library
+  module means creating it and applying `alias(libs.plugins.convention.android.library)` — no new
+  convention-plugin work needed.
+- **Single app module (`:app`)** today, namespace/applicationId `org.dmn.template`. Non-standard
+  Kotlin source layout: each source set points at `src/<name>/kotlin` instead of the default
+  `src/<name>/java` (set once, for all Android modules, in `KotlinAndroid.kt`).
 - **Version catalog is the single source of truth** for dependency/plugin versions
-  ([gradle/libs.versions.toml](gradle/libs.versions.toml)). Add new dependencies there, not as
-  inline coordinates in a build script.
+  ([gradle/libs.versions.toml](gradle/libs.versions.toml)), consumed both by `app/build.gradle.kts`
+  and by `build-logic` (which points its own `versionCatalogs` block back at the same root file —
+  there is only ever one catalog). Add new dependencies there, not as inline coordinates in a
+  build script.
 - **Dual test runner setup**: unit tests (`src/test`) and instrumented tests (`src/androidTest`)
   both run on JUnit 5 via the `de.mannodermaus.junit5` (`android-junit5`) plugin, with JUnit 4
   kept alive underneath for Compose UI testing (`ui-test-junit4`) and via the vintage engine.
