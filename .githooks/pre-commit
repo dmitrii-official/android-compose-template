@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Tracked git hook — activated automatically via `git config core.hooksPath .githooks`,
+# set by the convention.git.hooks plugin on the first Gradle run after clone.
+
+echo "Running spotlessCheck..."
+./gradlew spotlessCheck --quiet
+
+if [ $? -ne 0 ]; then
+    echo "Spotless check failed. Run './gradlew spotlessApply' to fix formatting, then commit again."
+    exit 1
+fi

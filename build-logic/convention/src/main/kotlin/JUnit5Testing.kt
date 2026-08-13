@@ -2,24 +2,39 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 
 internal fun Project.configureJUnit5Testing() {
-    dependencies {
-        "testImplementation"(platform(libs.findLibrary("junit.bom").get()))
-        "testImplementation"(libs.findLibrary("junit.jupiter").get())
-        "testImplementation"(libs.findLibrary("mockk").get())
-        "testImplementation"(libs.findLibrary("turbine").get())
-        "testImplementation"(libs.findLibrary("kotlinxCoroutinesTest").get())
-        "testImplementation"(libs.findLibrary("robolectric").get())
-        "testImplementation"(libs.findLibrary("androidx.test.core.ktx").get())
-        "testImplementation"(libs.findLibrary("androidx.junit").get())
-        "testRuntimeOnly"(libs.findLibrary("junit.vintage.engine").get())
-        "testRuntimeOnly"(libs.findLibrary("junit.launcher").get())
+        val junitBomVersion = libs.findLibrary("junit.bom").get()
+        val junitJupiter = libs.findLibrary("junit.jupiter").get()
+        val mockk = libs.findLibrary("mockk").get()
+        val turbine = libs.findLibrary("turbine").get()
+        val kotlinxCoroutinesTest = libs.findLibrary("kotlinxCoroutinesTest").get()
+        val robolectric = libs.findLibrary("robolectric").get()
+        val androidxTestCoreKtx = libs.findLibrary("androidx.test.core.ktx").get()
+        val androidxJunit = libs.findLibrary("androidx.junit").get()
+        val junitVintageEngine = libs.findLibrary("junit.vintage.engine").get()
+        val junitLauncher = libs.findLibrary("junit.launcher").get()
+        val androidJunit5Core = libs.findLibrary("android.junit5.core").get()
+        val androidxTestRunner = libs.findLibrary("androidx.test.runner").get()
+        val mockkAndroid = libs.findLibrary("mockk.android").get()
+        val androidJunit5Runner = libs.findLibrary("android.junit5.runner").get()
 
-        "androidTestImplementation"(platform(libs.findLibrary("junit.bom").get()))
-        "androidTestImplementation"(libs.findLibrary("junit.jupiter").get())
-        "androidTestImplementation"(libs.findLibrary("android.junit5.core").get())
-        "androidTestImplementation"(libs.findLibrary("androidx.test.runner").get())
-        "androidTestImplementation"(libs.findLibrary("androidx.junit").get())
-        "androidTestImplementation"(libs.findLibrary("mockk.android").get())
-        "androidTestRuntimeOnly"(libs.findLibrary("android.junit5.runner").get())
-    }
+        dependencies {
+                "testImplementation"(platform(junitBomVersion))
+                "testImplementation"(junitJupiter)
+                "testImplementation"(mockk)
+                "testImplementation"(turbine)
+                "testImplementation"(kotlinxCoroutinesTest)
+                "testImplementation"(robolectric)
+                "testImplementation"(androidxTestCoreKtx)
+                "testImplementation"(androidxJunit)
+                "testRuntimeOnly"(junitVintageEngine)
+                "testRuntimeOnly"(junitLauncher)
+
+                "androidTestImplementation"(platform(junitBomVersion))
+                "androidTestImplementation"(junitJupiter)
+                "androidTestImplementation"(androidJunit5Core)
+                "androidTestImplementation"(androidxTestRunner)
+                "androidTestImplementation"(androidxJunit)
+                "androidTestImplementation"(mockkAndroid)
+                "androidTestRuntimeOnly"(androidJunit5Runner)
+        }
 }

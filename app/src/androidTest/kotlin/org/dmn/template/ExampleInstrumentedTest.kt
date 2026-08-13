@@ -10,10 +10,17 @@ import org.junit.jupiter.api.Test
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleInstrumentedTest {
-    @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("org.dmn.template", appContext.packageName)
-    }
+        @Test
+        fun useAppContext() {
+                // Context of the app under test.
+                val appContext =
+                        InstrumentationRegistry
+                                .getInstrumentation()
+                                .targetContext
+
+                assertEquals(
+                        "org.dmn.template",
+                        appContext.packageName,
+                )
+        }
 }
