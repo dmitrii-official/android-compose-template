@@ -6,8 +6,6 @@ plugins {
         alias(libs.plugins.spotless)
 }
 
-group = "org.dmn.template.buildlogic"
-
 java {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
