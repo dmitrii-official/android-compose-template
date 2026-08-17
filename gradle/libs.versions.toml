@@ -24,7 +24,7 @@ koinBom = "4.2.2"
 turbine = "1.2.1"
 androidxTest = "1.7.0"
 robolectric = "4.16.1"
-spotless = "8.9.0"
+spotless = "8.10.0"
 detekt = "1.23.8"
 ktlint = "1.8.0"
 
