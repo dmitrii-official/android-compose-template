@@ -6,20 +6,24 @@ plugins {
     alias(libs.plugins.android.instrumented.runner) apply false
     alias(libs.plugins.spotless) apply false
     alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.convention.git.hooks)
+    alias(libs.plugins.project.tasks.git.hooks)
+    alias(libs.plugins.project.tasks.rename.project)
 }
 
 // build-logic is a separate included build, so its own spotlessCheck/spotlessApply tasks
-// (see build-logic/convention/build.gradle.kts) aren't picked up by an unqualified
-// `./gradlew spotlessCheck` unless we depend on them explicitly here.
+// (see build-logic/convention/build.gradle.kts and build-logic/project-tasks/build.gradle.kts)
+// aren't picked up by an unqualified `./gradlew spotlessCheck` unless we depend on them
+// explicitly here.
 tasks.register("spotlessCheck") {
     group = "verification"
     description = "Runs spotlessCheck in build-logic as well as every module that has it."
     dependsOn(gradle.includedBuild("build-logic").task(":convention:spotlessCheck"))
+    dependsOn(gradle.includedBuild("build-logic").task(":project-tasks:spotlessCheck"))
 }
 
 tasks.register("spotlessApply") {
     group = "verification"
     description = "Runs spotlessApply in build-logic as well as every module that has it."
     dependsOn(gradle.includedBuild("build-logic").task(":convention:spotlessApply"))
+    dependsOn(gradle.includedBuild("build-logic").task(":project-tasks:spotlessApply"))
 }
