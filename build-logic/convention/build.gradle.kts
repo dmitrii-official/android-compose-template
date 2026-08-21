@@ -63,10 +63,3 @@ extensions.configure<SpotlessExtension> {
                 ktlint(libs.versions.ktlint.get())
         }
 }
-
-tasks
-        .compileKotlin
-        .get()
-        .compilerOptions {
-                freeCompilerArgs.set(listOf("-Xcontext-parameters"))
-        }
