@@ -27,15 +27,35 @@ default. You rename it, then build your app inside it.
 2. Clone it, then rename the template to your app:
 
    ```bash
-   ./new-project.sh com.acme.notes "Acme Notes"
+   ./gradlew renameProject --namespace=com.acme.notes --app-name="Acme Notes"
    rm -rf .git && git init && git add -A && git commit -m "Initial commit"
    ```
 
-   `new-project.sh` does a literal find-and-replace of `org.dmn.template` → your applicationId and
-   `AndroidTemplate` → your app name across every tracked text file, then moves the Kotlin source
-   directories to match the new package path. It does **not** rename the base theme
-   (`Theme.AndroidTemplate` in `themes.xml` / `values-night/themes.xml`) - do that by hand if you
-   want the theme name to match your new app name.
+   `renameProject` reads the current namespace/applicationId straight from an application
+   module's AGP extension and the current project name from `rootProject.name` in
+   `settings.gradle.kts`, then does a literal find-and-replace across every tracked text file.
+   Source directories are moved using each subproject's *actual configured* Kotlin/Java source
+   sets (read from AGP, one subproject at a time) - not a guessed `src/main/kotlin` layout - so it
+   correctly follows `main`/`test`/`androidTest`, any build-type or flavor source set (`debug`,
+   `demoDebug`, ...), a `java/`-only layout, and any library module beyond `:app`, wherever those
+   directories actually live. The one identifier-sensitive spot - the base theme name
+   (`Theme.AndroidTemplate` in `themes.xml` / `values-night/themes.xml` / `AndroidManifest.xml`) -
+   is renamed using a space-stripped version of `--app-name`, since Android resource names can't
+   contain spaces; `app_name` in `strings.xml` still gets exactly what you typed.
+
+   All flags - `--namespace`, `--application-id`, `--app-name` - are independent and optional;
+   pass just the one(s) you want to change (e.g. `--app-name="Acme Notes"` alone renames only the
+   display name). `--application-id` defaults to `--namespace` when the two started in sync, which
+   is the common case since the template ships with them equal - pass `--application-id`
+   explicitly only when you want it to diverge from the namespace (e.g. a namespace with more
+   segments than the applicationId). The template ships with a single `:app` module, so
+   `renameProject` finds it automatically; if you add a second `com.android.application` module,
+   pass `--app-module=:app` (or whichever project path) to say which one's applicationId to patch
+   - the namespace/app-name substitution still applies repo-wide either way.
+
+   From Android Studio instead of the terminal: **Run → Edit Configurations → + → Gradle**, and set
+   the task/arguments field to
+   `renameProject --namespace=com.acme.notes --app-name="Acme Notes"`.
 
 3. Build it:
 
@@ -65,13 +85,27 @@ these are for running things manually or in CI.
 
 Nothing about compileSdk, minSdk, the Kotlin toolchain, test wiring, or Compose setup is written
 inline in `app/build.gradle.kts`. It's all centralized in `build-logic/` - a separate,
-[included build](https://docs.gradle.org/current/userguide/composite_builds.html) that defines two
-plugins:
+[included build](https://docs.gradle.org/current/userguide/composite_builds.html) with two
+modules, split by what the code is *about* rather than just grouped together:
 
-- `AndroidApplicationConventionPlugin` (id `convention.android.application`)
-- `AndroidLibraryConventionPlugin` (id `convention.android.library`)
+- `:convention` - config for Android modules / the app itself: `AndroidApplicationConventionPlugin`
+  (id `convention.android.application`) and `AndroidLibraryConventionPlugin`
+  (id `convention.android.library`).
+- `:project-tasks` - repo-maintenance tooling: it doesn't *configure* how a module builds the way
+  `:convention` does, but these tasks need to read module configuration (namespace, applicationId,
+  source sets) back out via the AGP DSL, so this module depends on
+  `com.android.tools.build:gradle-api` too. `GitHooksConventionPlugin`
+  (id `project-tasks.git-hooks`), `RenameProjectConventionPlugin`
+  (id `project-tasks.rename-project`, registers the `renameProject` task used in
+  [Getting started](#getting-started)), and `AddLibraryModuleConventionPlugin`
+  (id `project-tasks.add-library-module`, registers the `addLibraryModule` task described below) -
+  the latter two inspect every subproject after Gradle's configuration phase finishes
+  (`gradle.projectsEvaluated`), so they pick up any module you add later without code changes; with
+  more than one `com.android.application` module, `renameProject` needs `--app-module=<path>` to
+  know which one's applicationId to anchor on and patch, and `addLibraryModule` needs an explicit
+  `--namespace` since it can no longer derive a single default.
 
-A module opts into all of it with one line:
+A module opts into the Android config with one line:
 
 ```kotlin
 plugins {
@@ -84,15 +118,36 @@ applicationId, versionCode, versionName. Everything else - source layout, JUnit 
 Spotless, detekt, the Compose runtime dependency list - comes from the convention plugin.
 
 The library convention plugin exists for when you need it - today the template only has the `:app`
-module. **Adding a new library module** is just: create the module, apply
-`alias(libs.plugins.convention.android.library)`, done. No new convention-plugin work needed.
+module. **Adding a new library module** is a single command:
 
-The shared configuration logic lives in plain `.kt` files under
-`build-logic/convention/src/main/kotlin/` - `KotlinAndroid.kt`, `JUnit5Testing.kt`, `Spotless.kt`,
-`Detekt.kt`, `GitHooksConventionPlugin.kt`, `ProjectExtensions.kt` - each with **no package
-declaration**. That's deliberate: `new-project.sh`'s literal text replacement could otherwise
-rewrite a `package org.dmn.template` line without moving the file, silently desyncing the package
-from its directory. Keep new shared build-logic files package-less for the same reason.
+```bash
+./gradlew addLibraryModule --name=network
+```
+
+`addLibraryModule` scaffolds `<name>/build.gradle.kts` (already wired to
+`alias(libs.plugins.convention.android.library)`), `<name>/.gitignore`,
+`<name>/src/main/kotlin/<package>/` (empty, ready for your code), and a JUnit 5
+`<name>/src/test/kotlin/<package>/ExampleUnitTest.kt`, then appends `include(":<name>")` to
+`settings.gradle.kts`. It doesn't generate an `AndroidManifest.xml` - AGP resolves a library
+module's `namespace` from the DSL, so an empty module doesn't need one; add one by hand only if the
+module ends up needing to declare permissions, providers, or other manifest entries.
+
+`--namespace` defaults to `<app namespace>.<name>` (e.g. `org.dmn.template.network`), read from the
+`:app` module the same way `renameProject` reads it - pass `--namespace=com.acme.notes.network`
+explicitly to override it, or when there's no single application module to default from. `--name`
+must be a valid Gradle project name (letters, digits, hyphens, starting with a letter) and only
+creates a flat top-level module - nested paths like `core:network` aren't supported. As with
+`renameProject`, editing `settings.gradle.kts` doesn't affect the Gradle invocation that's already
+running, so re-sync / re-run Gradle after the task finishes to pick up the new module.
+
+The shared configuration logic lives in plain `.kt` files under each module's
+`src/main/kotlin/` - `build-logic/convention/` has `KotlinAndroid.kt`, `JUnit5Testing.kt`,
+`Spotless.kt`, `Detekt.kt`, `ProjectExtensions.kt`; `build-logic/project-tasks/` has
+`GitHooksConventionPlugin.kt`, `RenameProjectConventionPlugin.kt`, `RenameProjectTask.kt`,
+`AddLibraryModuleConventionPlugin.kt`, `AddLibraryModuleTask.kt` - and every one of them has **no
+package declaration**. That's deliberate: `renameProject`'s literal text replacement could
+otherwise rewrite a `package org.dmn.template` line without moving the file, silently desyncing the
+package from its directory. Keep new shared build-logic files package-less for the same reason.
 
 ### Non-standard Kotlin source layout
 

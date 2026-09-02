@@ -121,5 +121,7 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 # Plugins defined by this project's build-logic (no version — resolved via includeBuild)
 convention-android-application = { id = "convention.android.application" }
 convention-android-library = { id = "convention.android.library" }
-convention-git-hooks = { id = "convention.git.hooks" }
+project-tasks-git-hooks = { id = "project-tasks.git-hooks" }
+project-tasks-rename-project = { id = "project-tasks.rename-project" }
+project-tasks-add-library-module = { id = "project-tasks.add-library-module" }
 

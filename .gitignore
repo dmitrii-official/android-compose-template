@@ -6,6 +6,7 @@
 /build
 /build-logic/build
 /build-logic/convention/build
+/build-logic/project-tasks/build
 /captures
 .externalNativeBuild
 .cxx

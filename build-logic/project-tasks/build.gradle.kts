@@ -19,28 +19,30 @@ kotlin {
 
 dependencies {
         compileOnly(libs.android.gradlePlugin)
-        compileOnly(libs.kotlin.gradlePlugin)
-        compileOnly(libs.compose.gradlePlugin)
-        compileOnly(libs.android.junit5.gradlePlugin)
-        compileOnly(libs.spotless.gradlePlugin)
-        compileOnly(libs.detekt.gradlePlugin)
 }
 
 gradlePlugin {
         plugins {
-                register("androidApplication") {
+                register("gitHooks") {
                         id =
-                                libs.plugins.convention.android.application
+                                libs.plugins.project.tasks.git.hooks
                                         .get()
                                         .pluginId
-                        implementationClass = "AndroidApplicationConventionPlugin"
+                        implementationClass = "GitHooksConventionPlugin"
                 }
-                register("androidLibrary") {
+                register("renameProject") {
                         id =
-                                libs.plugins.convention.android.library
+                                libs.plugins.project.tasks.rename.project
                                         .get()
                                         .pluginId
-                        implementationClass = "AndroidLibraryConventionPlugin"
+                        implementationClass = "RenameProjectConventionPlugin"
+                }
+                register("addLibraryModule") {
+                        id =
+                                libs.plugins.project.tasks.add.library.module
+                                        .get()
+                                        .pluginId
+                        implementationClass = "AddLibraryModuleConventionPlugin"
                 }
         }
 }
