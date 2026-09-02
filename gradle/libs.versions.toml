@@ -123,4 +123,5 @@ convention-android-application = { id = "convention.android.application" }
 convention-android-library = { id = "convention.android.library" }
 project-tasks-git-hooks = { id = "project-tasks.git-hooks" }
 project-tasks-rename-project = { id = "project-tasks.rename-project" }
+project-tasks-add-library-module = { id = "project-tasks.add-library-module" }
 

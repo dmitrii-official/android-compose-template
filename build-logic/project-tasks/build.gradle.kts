@@ -37,6 +37,13 @@ gradlePlugin {
                                         .pluginId
                         implementationClass = "RenameProjectConventionPlugin"
                 }
+                register("addLibraryModule") {
+                        id =
+                                libs.plugins.project.tasks.add.library.module
+                                        .get()
+                                        .pluginId
+                        implementationClass = "AddLibraryModuleConventionPlugin"
+                }
         }
 }
 

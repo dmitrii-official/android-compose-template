@@ -92,15 +92,18 @@ modules, split by what the code is *about* rather than just grouped together:
   (id `convention.android.application`) and `AndroidLibraryConventionPlugin`
   (id `convention.android.library`).
 - `:project-tasks` - repo-maintenance tooling: it doesn't *configure* how a module builds the way
-  `:convention` does, but `renameProject` does need to read module configuration (namespace,
-  applicationId, source sets) back out via the AGP DSL, so this module depends on
+  `:convention` does, but these tasks need to read module configuration (namespace, applicationId,
+  source sets) back out via the AGP DSL, so this module depends on
   `com.android.tools.build:gradle-api` too. `GitHooksConventionPlugin`
-  (id `project-tasks.git-hooks`) and `RenameProjectConventionPlugin`
+  (id `project-tasks.git-hooks`), `RenameProjectConventionPlugin`
   (id `project-tasks.rename-project`, registers the `renameProject` task used in
-  [Getting started](#getting-started)) - the latter inspects every subproject after Gradle's
-  configuration phase finishes (`gradle.projectsEvaluated`), so it picks up any module you add
-  later without code changes; with more than one `com.android.application` module it needs
-  `--app-module=<path>` to know which one's applicationId to anchor on and patch.
+  [Getting started](#getting-started)), and `AddLibraryModuleConventionPlugin`
+  (id `project-tasks.add-library-module`, registers the `addLibraryModule` task described below) -
+  the latter two inspect every subproject after Gradle's configuration phase finishes
+  (`gradle.projectsEvaluated`), so they pick up any module you add later without code changes; with
+  more than one `com.android.application` module, `renameProject` needs `--app-module=<path>` to
+  know which one's applicationId to anchor on and patch, and `addLibraryModule` needs an explicit
+  `--namespace` since it can no longer derive a single default.
 
 A module opts into the Android config with one line:
 
@@ -115,17 +118,36 @@ applicationId, versionCode, versionName. Everything else - source layout, JUnit 
 Spotless, detekt, the Compose runtime dependency list - comes from the convention plugin.
 
 The library convention plugin exists for when you need it - today the template only has the `:app`
-module. **Adding a new library module** is just: create the module, apply
-`alias(libs.plugins.convention.android.library)`, done. No new convention-plugin work needed.
+module. **Adding a new library module** is a single command:
+
+```bash
+./gradlew addLibraryModule --name=network
+```
+
+`addLibraryModule` scaffolds `<name>/build.gradle.kts` (already wired to
+`alias(libs.plugins.convention.android.library)`), `<name>/.gitignore`,
+`<name>/src/main/kotlin/<package>/` (empty, ready for your code), and a JUnit 5
+`<name>/src/test/kotlin/<package>/ExampleUnitTest.kt`, then appends `include(":<name>")` to
+`settings.gradle.kts`. It doesn't generate an `AndroidManifest.xml` - AGP resolves a library
+module's `namespace` from the DSL, so an empty module doesn't need one; add one by hand only if the
+module ends up needing to declare permissions, providers, or other manifest entries.
+
+`--namespace` defaults to `<app namespace>.<name>` (e.g. `org.dmn.template.network`), read from the
+`:app` module the same way `renameProject` reads it - pass `--namespace=com.acme.notes.network`
+explicitly to override it, or when there's no single application module to default from. `--name`
+must be a valid Gradle project name (letters, digits, hyphens, starting with a letter) and only
+creates a flat top-level module - nested paths like `core:network` aren't supported. As with
+`renameProject`, editing `settings.gradle.kts` doesn't affect the Gradle invocation that's already
+running, so re-sync / re-run Gradle after the task finishes to pick up the new module.
 
 The shared configuration logic lives in plain `.kt` files under each module's
 `src/main/kotlin/` - `build-logic/convention/` has `KotlinAndroid.kt`, `JUnit5Testing.kt`,
 `Spotless.kt`, `Detekt.kt`, `ProjectExtensions.kt`; `build-logic/project-tasks/` has
-`GitHooksConventionPlugin.kt`, `RenameProjectConventionPlugin.kt`, `RenameProjectTask.kt` - and
-every one of them has **no package declaration**. That's deliberate: `renameProject`'s literal
-text replacement could otherwise rewrite a `package org.dmn.template` line without moving the
-file, silently desyncing the package from its directory. Keep new shared build-logic files
-package-less for the same reason.
+`GitHooksConventionPlugin.kt`, `RenameProjectConventionPlugin.kt`, `RenameProjectTask.kt`,
+`AddLibraryModuleConventionPlugin.kt`, `AddLibraryModuleTask.kt` - and every one of them has **no
+package declaration**. That's deliberate: `renameProject`'s literal text replacement could
+otherwise rewrite a `package org.dmn.template` line without moving the file, silently desyncing the
+package from its directory. Keep new shared build-logic files package-less for the same reason.
 
 ### Non-standard Kotlin source layout
 

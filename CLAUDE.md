@@ -19,6 +19,7 @@ keep both in sync when either changes.
 ./gradlew spotlessApply                                # ktlint auto-format
 ./gradlew detekt                                       # static analysis (default rule set, no formatting)
 ./gradlew renameProject --namespace=com.acme.notes --app-name="Acme Notes"  # rename the template
+./gradlew addLibraryModule --name=network                                   # scaffold a new library module
 ```
 
 ## Agent-specific caveats
@@ -26,11 +27,19 @@ keep both in sync when either changes.
 - **Never add a `package` declaration to a file under `build-logic/convention/src/main/kotlin/`
   or `build-logic/project-tasks/src/main/kotlin/`.** Those files (`KotlinAndroid.kt`,
   `JUnit5Testing.kt`, `Spotless.kt`, `Detekt.kt`, `ProjectExtensions.kt` in `:convention`;
-  `GitHooksConventionPlugin.kt`, `RenameProjectConventionPlugin.kt`, `RenameProjectTask.kt` in
-  `:project-tasks`, …) are deliberately package-less so the `renameProject` task's literal
-  `org.dmn.template` text replacement can never rewrite a `package` line without moving the file —
-  which would silently desync the package from the directory. Keep any new shared build-logic file
-  the same way.
+  `GitHooksConventionPlugin.kt`, `RenameProjectConventionPlugin.kt`, `RenameProjectTask.kt`,
+  `AddLibraryModuleConventionPlugin.kt`, `AddLibraryModuleTask.kt` in `:project-tasks`, …) are
+  deliberately package-less so the `renameProject` task's literal `org.dmn.template` text
+  replacement can never rewrite a `package` line without moving the file — which would silently
+  desync the package from the directory. Keep any new shared build-logic file the same way.
+- `AddLibraryModuleTask` (`build-logic/project-tasks/src/main/kotlin/AddLibraryModuleTask.kt`)
+  scaffolds a new Android library module (build script, `.gitignore`, empty `src/main/kotlin`
+  package dir, a JUnit 5 `ExampleUnitTest.kt`) and appends `include(":<name>")` to
+  `settings.gradle.kts`. It deliberately does not generate an `AndroidManifest.xml` — verified
+  that `assembleDebug`/`lint`/`spotlessCheck`/`detekt` all pass without one, since AGP resolves
+  `namespace` from the DSL. Only flat top-level modules are supported (no `core:network`-style
+  nesting); `--namespace` defaults to `<app namespace>.<name>`, read the same way
+  `RenameProjectTask` reads the app module's namespace.
 - `RenameProjectTask` (`build-logic/project-tasks/src/main/kotlin/RenameProjectTask.kt`) derives
   the *current* package/name to replace from `app/build.gradle.kts` (`namespace`/`applicationId`)
   and `rootProject.name`, rather than hardcoding them — so the task itself never contains the

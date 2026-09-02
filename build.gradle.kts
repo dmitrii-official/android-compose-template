@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.project.tasks.git.hooks)
     alias(libs.plugins.project.tasks.rename.project)
+    alias(libs.plugins.project.tasks.add.library.module)
 }
 
 // build-logic is a separate included build, so its own spotlessCheck/spotlessApply tasks
