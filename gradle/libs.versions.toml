@@ -1,7 +1,7 @@
 [versions]
 #For plugins
 agp = "9.4.1"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 android-junit5 = "2.0.1"
 
 #For dependencies
@@ -24,7 +24,7 @@ koinBom = "4.2.2"
 turbine = "1.2.1"
 androidxTest = "1.7.0"
 robolectric = "4.17"
-spotless = "8.10.3"
+spotless = "8.10.4"
 detekt = "1.23.8"
 ktlint = "1.8.0"
 
